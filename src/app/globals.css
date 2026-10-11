@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+/*
+ * Ananta design tokens — source of truth: design-system/ananta-silicon/MASTER.md (Brand Layer).
+ * Components consume the semantic tokens (bg, fg, accent, …), never raw hex.
+ */
+:root {
+  /* Brand palette (preserved) */
+  --brand-black: #000000;
+  --brand-white: #ffffff;
+  --brand-ink: #1f1f1f;
+  --brand-cyan: #112526;
+  --brand-green: #02795d;
+  --brand-tan: #c2a87a;
+
+  /* Derived for contrast (see MASTER.md B1) */
+  --brand-green-bright: #3cc4a0; /* green text/rings on dark surfaces */
+  --brand-green-press: #026a52; /* button hover */
+  --brand-muted-dark: #9aa8a9; /* secondary text on dark */
+  --brand-muted-light: #5b5b5b; /* secondary text on white */
+
+  /* Semantic — dark theme (default) */
+  --bg: var(--brand-black);
+  --bg-raised: var(--brand-ink);
+  --bg-deep: var(--brand-cyan);
+  --fg: var(--brand-white);
+  --fg-muted: var(--brand-muted-dark);
+  --accent: var(--brand-green-bright);
+  --accent-fill: var(--brand-green);
+  --accent-fill-hover: var(--brand-green-press);
+  --on-accent-fill: var(--brand-white);
+  --annotation: var(--brand-tan);
+  --line: rgb(255 255 255 / 0.14);
+  --line-strong: rgb(255 255 255 / 0.5);
+  --ring: var(--brand-green-bright);
+
+  /* Motion tokens */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Sticky header height: logo row (4rem) + tab row on phones (2.75rem) */
+  --nav-h: 6.75rem;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --nav-h: 4rem;
+  }
+}
+
+/* Light "paper" surface — scoped token override, not ad-hoc colors */
+[data-surface="paper"] {
+  --bg: var(--brand-white);
+  --bg-raised: var(--brand-white);
+  --fg: var(--brand-ink);
+  --fg-muted: var(--brand-muted-light);
+  --accent: var(--brand-green);
+  --annotation: var(--brand-ink);
+  --line: rgb(0 0 0 / 0.16);
+  --line-strong: rgb(0 0 0 / 0.5);
+  --ring: var(--brand-green);
+}
+
+[data-surface="ink"] {
+  --bg: var(--brand-ink);
+  --bg-raised: var(--brand-black);
+}
+
+[data-surface="deep"] {
+  --bg: var(--brand-cyan);
+  --bg-raised: var(--brand-black);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-raised: var(--bg-raised);
+  --color-deep: var(--bg-deep);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
+  --color-accent-fill-hover: var(--accent-fill-hover);
+  --color-on-accent-fill: var(--on-accent-fill);
+  --color-annotation: var(--annotation);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jb-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --radius-control: 2px;
+  --container-page: 72rem;
+  --container-prose: 65ch;
+}
+
+html {
+  background: var(--brand-black);
+  color-scheme: dark;
+  scroll-padding-top: calc(var(--nav-h) + 1rem);
+  
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+  font-weight: 500;
+}
+
+/* Focus: always visible, never removed */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--brand-green);
+  color: var(--brand-white);
+}
+
+/* Shared transition for interactive color/border changes only */
+.t-ui {
+  transition:
+    color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    text-decoration-thickness var(--dur-base) var(--ease-out);
+}
+
+/* The single animation: the hero's diverging trace is revealed left to right once on load (final state is the default) */
+@keyframes trace-reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.trace-draw {
+  animation: trace-reveal 1.6s var(--ease-out) 0.3s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trace-draw { animation: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

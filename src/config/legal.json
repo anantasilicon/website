@@ -1,0 +1,5 @@
+{
+  "_readme": "Gate for /privacy and /terms. Keep published=false until every [[...]] placeholder in src/content/legal/*.md is resolved, facts are confirmed, and counsel has reviewed. The build fails if published=true while placeholders remain. See docs/legal/launch-checklist.md.",
+  "published": false,
+  "effectiveDate": null
+}
