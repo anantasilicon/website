@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return {
       beforeFiles: [
-        { source: "/", destination: "/landing.html" },
-        { source: "/app", destination: "/app-preview.html" },
+        { source: "/", destination: "/index.html" },
+        { source: "/app", destination: "/app/index.html" },
       ],
       afterFiles: [],
       fallback: [],

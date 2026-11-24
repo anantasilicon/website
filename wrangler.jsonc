@@ -1,13 +1,9 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "anantawebsite",
-  "main": ".open-next/worker.js",
-  "upload_source_maps": true,
   "compatibility_date": "2026-11-24",
-  "compatibility_flags": ["nodejs_compat"],
   "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "directory": "./public/"
   },
   "observability": {
     "enabled": true
