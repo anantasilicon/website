@@ -4,12 +4,12 @@
   "compatibility_date": "2026-11-24",
   "routes": [
     {
-      "pattern": "anantasilicon.com",
-      "custom_domain": true
+      "pattern": "anantasilicon.com/*",
+      "zone_name": "anantasilicon.com"
     },
     {
-      "pattern": "www.anantasilicon.com",
-      "custom_domain": true
+      "pattern": "www.anantasilicon.com/*",
+      "zone_name": "anantasilicon.com"
     }
   ],
   "assets": {
