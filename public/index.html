@@ -366,7 +366,7 @@
     .terminal-output .term-rule{height:1px;min-height:1px;background:#d5ddd8;margin:10px 0 12px}
     .terminal-input-row{padding:10px 0 8px;min-height:51px;border:0;border-bottom:2px solid #2548d2;gap:12px;color:#2445be;font:18px var(--mono);}
     .terminal-input-row label{font:30px/1 var(--mono);color:#ff6345}
-    .terminal-input-row input{color:#1f2f29;font:13px var(--mono);}
+    .terminal-input-row #terminalInput{color:#1f2f29;font:13px var(--mono);}
     #terminalInput::placeholder{color:#a0aaa4}
     .terminal-input-row button{border:0;background:transparent;font:20px var(--mono);color:#2043c7;padding:6px}
     .terminal-hints{display:flex;flex-wrap:wrap;gap:9px 18px;padding-top:17px;}
@@ -863,7 +863,7 @@
     <div class="terminal-popup-body">
       <div class="terminal-output" id="terminalOutput" role="log" aria-live="polite" aria-label="Terminal output">
         <div class="term-line term-head">ananta knowledge console</div>
-        <div class="term-line">Type <b>help</b> for topics or <b>agent</b> for a structured brief.</div>
+        <div class="term-line">Virtual read-only workspace. Try <b>ls</b>, <b>cat README.md</b>, or <b>help</b>.</div>
       </div>
       <form class="terminal-input-row" id="terminalForm" autocomplete="off">
         <label for="terminalInput" aria-hidden="true">›</label>
@@ -996,8 +996,14 @@
     });
     const commandResponses = {
       help: {
-        title: 'Available topics',
-        lines: ['summary      the short version',
+        title: 'Commands and knowledge topics',
+        lines: ['SHELL',
+                'ls, cd, pwd, cat, tree, find, grep, head, tail, wc',
+                'echo, printf, whoami, id, hostname, date, uname, env',
+                'history, which, man, clear',
+                '',
+                'KNOWLEDGE',
+                'summary      the short version',
                 'product      what ananta does',
                 'workloads    example workloads and fit',
                 'aws          connection and data sources',
@@ -1007,7 +1013,9 @@
                 'limitations  important qualification notes',
                 'quote        illustrative savings math',
                 'agent        structured machine-readable brief',
-                'clear        clear this console']
+                '',
+                'This is a browser-side, read-only documentation workspace.',
+                'It never accesses your computer, shell, credentials, or AWS account.']
       },
       summary: {
         title: 'Ananta in 30 seconds',
@@ -1083,7 +1091,77 @@
                 'secrets=never submit AWS access keys or passwords through public forms']
       }
     };
-    const commandAliases = {about:'product', overview:'summary', whoami:'summary', cost:'pricing', fees:'pricing', integration:'aws', data:'security', privacy:'security', fit:'workloads', examples:'workloads'};
+    const commandAliases = {about:'product', overview:'summary', cost:'pricing', fees:'pricing', integration:'aws', data:'security', privacy:'security', fit:'workloads', examples:'workloads'};
+    const virtualFiles = {
+      '/README.md': `# ananta labs
+
+AWS compute optimization using existing FPGA infrastructure.
+
+Start here:
+- cat AGENTS.md
+- cat company.json
+- tree docs
+- cat docs/product.md
+- cat docs/pricing.md
+- cat docs/security.md
+
+This virtual workspace is read-only and contains public product information only.`,
+      '/AGENTS.md': `# Agent context
+
+ananta labs evaluates whether AWS CPU workloads can run more cost-efficiently on existing FPGA infrastructure.
+
+Workflow: connect AWS with a customer-approved read-only role; select an EC2 or ECS workload; provide representative test input; benchmark CPU versus FPGA; review projected costs and savings.
+
+Commercial model: ananta receives 30% of verified compute savings and the customer retains 70%. No verified savings means no ananta fee.
+
+Never infer workload compatibility or guaranteed savings without a workload-specific benchmark. Never request AWS access keys or passwords through public forms.`,
+      '/company.json': `{
+  "company": "ananta labs",
+  "category": "AWS compute optimization",
+  "approach": "existing FPGA infrastructure",
+  "pricing": { "ananta_share": "30%", "customer_share": "70%" },
+  "no_verified_savings_fee": "$0",
+  "aws_scope": ["Cost Explorer", "CloudWatch", "EC2", "ECS"],
+  "example_workloads": ["vector search", "log filtering", "risk simulation"],
+  "qualification": "Compatibility and savings require workload-specific validation"
+}`,
+      '/docs/product.md': `# Product
+
+Purpose: reduce AWS compute cost for workloads that benchmark well on FPGA hardware.
+
+ananta configures existing FPGA chips around compatible software workloads; it is not designing new silicon.
+
+The output is an evidence-based comparison of current CPU cost, projected FPGA cost, gross savings, fee, and customer net savings.`,
+      '/docs/process.md': `# Evaluation process
+
+1. Connect AWS with a customer-approved read-only IAM role created through CloudFormation.
+2. Select an EC2 instance or ECS service and provide representative test input.
+3. Benchmark the same work on CPU and FPGA.
+4. Review projected costs, the ananta fee, and retained savings.
+
+No estimate is shown until a connection and successful benchmark provide evidence.`,
+      '/docs/pricing.md': `# Pricing
+
+The customer continues paying AWS directly.
+ananta charges a separate monthly fee equal to 30% of verified compute savings.
+The customer retains 70% of verified savings.
+If verified savings are $0, the ananta fee is $0.
+
+Baseline, scope, timing, exclusions, and payment terms belong in the customer agreement.`,
+      '/docs/security.md': `# Access and data handling
+
+The customer reviews and approves AWS permissions. The public workflow describes read-only access to Cost Explorer, CloudWatch, EC2, and ECS metadata.
+
+Customers retain ownership of their code, data, AWS accounts, and workloads. Account data is not used to train models for unrelated customers without separate authorization.
+
+Never submit AWS secret keys or passwords through public forms.`,
+      '/docs/workloads.md': `# Workload fit
+
+Illustrative candidates: vector search, log filtering, and risk simulation.
+
+A named workload is not a compatibility guarantee. Fit depends on the operation, data, performance requirements, AWS pricing, configuration, and benchmark results.`
+    };
+    let currentDirectory = '/';
     const commandHistory = [];
     let historyIndex = 0;
     function appendLine(text, kind='') {
@@ -1101,6 +1179,140 @@
       terminalOutput.appendChild(rule);
       terminalOutput.scrollTop=terminalOutput.scrollHeight;
     }
+    function shellWords(input) {
+      const words=[];
+      input.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"|'([^']*)'|([^\s]+)/g,(_,doubleQuoted,singleQuoted,bare)=>{
+        words.push((doubleQuoted??singleQuoted??bare).replace(/\\([\\"'])/g,'$1'));
+        return '';
+      });
+      return words;
+    }
+    function resolveVirtualPath(input='.') {
+      const parts=(input.startsWith('/')?input:currentDirectory+'/'+input).split('/');
+      const normalized=[];
+      parts.forEach(part=>{
+        if(!part||part==='.')return;
+        if(part==='..')normalized.pop();else normalized.push(part);
+      });
+      return '/'+normalized.join('/');
+    }
+    function virtualDirectories() {
+      const directories=new Set(['/']);
+      Object.keys(virtualFiles).forEach(path=>{
+        const parts=path.split('/').filter(Boolean);
+        parts.pop();
+        let parent='';
+        parts.forEach(part=>{parent+='/'+part;directories.add(parent);});
+      });
+      return directories;
+    }
+    function listVirtualDirectory(path) {
+      const prefix=path==='/'?'/':path+'/';
+      const entries=new Map();
+      Object.keys(virtualFiles).forEach(file=>{
+        if(!file.startsWith(prefix))return;
+        const remainder=file.slice(prefix.length);
+        if(!remainder)return;
+        const [name,...rest]=remainder.split('/');
+        entries.set(name,rest.length>0);
+      });
+      return [...entries].sort(([a],[b])=>a.localeCompare(b));
+    }
+    function virtualTree(path,indent='') {
+      const lines=[];
+      listVirtualDirectory(path).forEach(([name,isDirectory],index,entries)=>{
+        const last=index===entries.length-1;
+        lines.push(indent+(last?'└── ':'├── ')+name+(isDirectory?'/':''));
+        if(isDirectory)lines.push(...virtualTree(resolveVirtualPath(path+'/'+name),indent+(last?'    ':'│   ')));
+      });
+      return lines;
+    }
+    function readVirtualFiles(paths) {
+      const output=[];
+      paths.forEach((input,index)=>{
+        const path=resolveVirtualPath(input);
+        if(!(path in virtualFiles)){output.push('cat: '+input+': No such file');return;}
+        if(paths.length>1)output.push((index?'':'')+'==> '+input+' <==');
+        output.push(...virtualFiles[path].split('\n'));
+      });
+      return output;
+    }
+    function runShellCommand(input) {
+      const args=shellWords(input);
+      const command=args.shift();
+      const directories=virtualDirectories();
+      let lines=[];
+      if(command==='pwd')lines=[currentDirectory];
+      else if(command==='ls'){
+        const targets=args.filter(arg=>!arg.startsWith('-'));
+        const target=resolveVirtualPath(targets[0]||'.');
+        if(target in virtualFiles)lines=[target.split('/').pop()];
+        else if(!directories.has(target))lines=['ls: '+(targets[0]||'.')+': No such file or directory'];
+        else lines=listVirtualDirectory(target).map(([name,isDirectory])=>name+(isDirectory?'/':''));
+      } else if(command==='cd'){
+        const target=resolveVirtualPath(args[0]||'/');
+        if(!directories.has(target))lines=['cd: '+(args[0]||'/')+': No such directory'];
+        else {currentDirectory=target;lines=['cwd='+currentDirectory];}
+      } else if(command==='cat')lines=args.length?readVirtualFiles(args):['cat: missing file operand'];
+      else if(command==='tree'){
+        const target=resolveVirtualPath(args.find(arg=>!arg.startsWith('-'))||'.');
+        lines=directories.has(target)?[target==='/'?'/':target.split('/').pop()+'/',...virtualTree(target)]:['tree: '+target+': No such directory'];
+      } else if(command==='find'){
+        const target=resolveVirtualPath(args.find(arg=>!arg.startsWith('-'))||'.');
+        const prefix=target==='/'?'/':target+'/';
+        lines=[...directories,...Object.keys(virtualFiles)].filter(path=>path===target||path.startsWith(prefix)).sort();
+        if(!lines.length)lines=['find: '+target+': No such file or directory'];
+      } else if(command==='grep'){
+        const options=args.filter(arg=>arg.startsWith('-')).join('');
+        const values=args.filter(arg=>!arg.startsWith('-'));
+        const pattern=values.shift();
+        const files=values.length?values:Object.keys(virtualFiles);
+        if(!pattern)lines=['grep: missing search pattern'];
+        else files.forEach(input=>{
+          const path=input.startsWith('/')?resolveVirtualPath(input):resolveVirtualPath(input);
+          if(!(path in virtualFiles)){lines.push('grep: '+input+': No such file');return;}
+          virtualFiles[path].split('\n').forEach((line,index)=>{
+            const haystack=options.includes('i')?line.toLowerCase():line;
+            const needle=options.includes('i')?pattern.toLowerCase():pattern;
+            if(haystack.includes(needle))lines.push((files.length>1?input+':':'')+(options.includes('n')?(index+1)+':':'')+line);
+          });
+        });
+      } else if(command==='head'||command==='tail'){
+        const countIndex=args.indexOf('-n');
+        const count=countIndex>=0?Math.max(0,Number(args[countIndex+1])||10):10;
+        const files=args.filter((arg,index)=>arg!=='-n'&&index!==countIndex+1);
+        const content=files.length?readVirtualFiles(files):[];
+        lines=command==='head'?content.slice(0,count):content.slice(-count);
+        if(!files.length)lines=[command+': missing file operand'];
+      } else if(command==='wc'){
+        const files=args.filter(arg=>!arg.startsWith('-'));
+        if(!files.length)lines=['wc: missing file operand'];
+        else files.forEach(input=>{
+          const path=resolveVirtualPath(input);
+          if(!(path in virtualFiles)){lines.push('wc: '+input+': No such file');return;}
+          const content=virtualFiles[path];
+          lines.push(content.split('\n').length+' '+(content.trim()?content.trim().split(/\s+/).length:0)+' '+content.length+' '+input);
+        });
+      } else if(command==='echo'||command==='printf')lines=[args.join(' ')];
+      else if(command==='whoami')lines=['visitor'];
+      else if(command==='id')lines=['uid=1000(visitor) gid=1000(visitor) groups=1000(visitor)'];
+      else if(command==='hostname')lines=['ananta-docs'];
+      else if(command==='date')lines=[new Date().toString()];
+      else if(command==='uname')lines=[args.includes('-a')?'Ananta WebTerminal 1.0 virtual browser read-only':'Ananta WebTerminal'];
+      else if(command==='env'||command==='printenv')lines=['SHELL=/bin/ananta-docs','USER=visitor','HOSTNAME=ananta-docs','PWD='+currentDirectory,'MODE=read-only'];
+      else if(command==='history')lines=commandHistory.map((entry,index)=>String(index+1).padStart(4,' ')+'  '+entry);
+      else if(command==='which'){
+        const supported=['ls','cd','pwd','cat','tree','find','grep','head','tail','wc','echo','printf','whoami','id','hostname','date','uname','env','printenv','history','which','man','clear'];
+        lines=args.map(name=>supported.includes(name)?'/bin/'+name:name+' not found');
+        if(!args.length)lines=['which: missing command name'];
+      } else if(command==='man'){
+        const topic=args[0];
+        lines=topic?[''+topic+' is implemented in a browser-side, read-only documentation shell.','Run '+topic+' --help is not required; type help for supported syntax and knowledge topics.']:['What manual page do you want?'];
+      }
+      else return false;
+      appendResponse({title:'shell · '+command,lines:lines.length?lines:['(no output)'],kind:'term-key'});
+      return true;
+    }
     function runCommand(raw) {
       const entered=String(raw).trim().toLowerCase();
       if(!entered)return;
@@ -1109,8 +1321,9 @@
       appendLine('› '+entered,'term-cmd');
       const cmd=commandAliases[entered]||entered;
       if(commandResponses[cmd])appendResponse(commandResponses[cmd]);
+      else if(runShellCommand(entered))return;
       else {
-        appendLine('No topic named "'+entered+'". Type help to see the knowledge index.','term-warning');
+        appendLine('command not found: '+shellWords(entered)[0]+'. Type help to list supported commands.','term-warning');
         appendLine('');
       }
     }
