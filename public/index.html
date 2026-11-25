@@ -348,21 +348,23 @@
     .quote-plate-head{justify-content:flex-start}
 
     /* Terminal: no nested terminal frame, title bars, sandbox banners, or chip grids. */
-    .terminal-dialog{max-width:min(760px,calc(100vw - 28px));width:100%;max-height:min(86dvh,740px);background:#fbfbf7;border:1px solid #1431a7;box-shadow:11px 11px 0 #ff7355;overflow:auto;color:#1b2b28}
+    .terminal-dialog{max-width:min(820px,calc(100vw - 28px));width:100%;max-height:min(88dvh,800px);background:#fbfbf7;border:1px solid #1431a7;box-shadow:11px 11px 0 #ff7355;overflow:auto;color:#1b2b28}
     .terminal-dialog::backdrop{background:rgba(13,27,54,.34);backdrop-filter:blur(3px)}
     .terminal-popup-head{padding:31px 33px 24px;align-items:flex-start;border-bottom:1px solid #cbd4d0;background:#fbfbf7}
     .terminal-popup-head h2{margin:0 0 12px;font:720 clamp(39px,5vw,65px)/.95 var(--font);letter-spacing:-.075em;color:#203ac2}
     .terminal-popup-head h2 span{color:#ff6345}
-    .terminal-popup-head p{max-width:440px;font:14px/1.5 var(--font);color:#5a6862;letter-spacing:-.025em}
+    .terminal-popup-head p{max-width:560px;font:14px/1.5 var(--font);color:#5a6862;letter-spacing:-.025em}
     .terminal-close{width:37px;height:37px;background:transparent;border:1px solid #97a9b8;border-radius:50%;font:24px/1 var(--font);color:#1f2f29;transition:background .2s;color:#1f2f29}
     .terminal-close:hover{background:#e6edff}
     .terminal-popup-body{padding:0 33px 27px;background:#fbfbf7}
-    .terminal-dialog .terminal-output{height:232px;min-height:190px;overflow-y:auto;background:transparent;padding:24px 0 14px;border:0;color:#273e47;font:12px/1.72 var(--mono);scrollbar-color:#a4b5ce transparent;white-space:pre-wrap;overflow-wrap:anywhere;}
+    .terminal-dialog .terminal-output{height:330px;min-height:230px;overflow-y:auto;background:#f4f6f0;padding:20px 21px 16px;border:1px solid #d5ddd8;color:#273e47;font:12px/1.72 var(--mono);scrollbar-color:#a4b5ce transparent;white-space:pre-wrap;overflow-wrap:anywhere;}
     .terminal-output .term-line{min-height:1.7em;}
-    .terminal-output .term-head{color:#2041cf;font-weight:800}
+    .terminal-output .term-head{color:#2041cf;font-weight:800;margin-top:8px;text-transform:uppercase;letter-spacing:.055em}
     .terminal-output .term-cmd{color:#e05537;font-weight:700}
     .terminal-output .term-warning{color:#c04728}
-    .terminal-input-row{padding:0 0 11px;min-height:51px;border:0;border-bottom:2px solid #2548d2;gap:12px;color:#2445be;font:18px var(--mono);}
+    .terminal-output .term-key{color:#27534b}
+    .terminal-output .term-rule{height:1px;min-height:1px;background:#d5ddd8;margin:10px 0 12px}
+    .terminal-input-row{padding:10px 0 8px;min-height:51px;border:0;border-bottom:2px solid #2548d2;gap:12px;color:#2445be;font:18px var(--mono);}
     .terminal-input-row label{font:30px/1 var(--mono);color:#ff6345}
     .terminal-input-row input{color:#1f2f29;font:13px var(--mono);}
     #terminalInput::placeholder{color:#a0aaa4}
@@ -407,7 +409,7 @@
       .terminal-popup-head h2{font-size:42px}
       .terminal-popup-head p{font-size:13px}
       .terminal-popup-body{padding:0 20px 20px}
-      .terminal-dialog .terminal-output{height:205px;padding-top:18px;font-size:11px}
+      .terminal-dialog .terminal-output{height:285px;padding:15px;font-size:11px}
       .footer-poster{padding-top:63px;padding-bottom:58px}
       .footer-poster-copy h2{font-size:clamp(54px,10.8vw,77px)}
       .footer-poster-actions{max-width:none}
@@ -855,12 +857,13 @@
 
   <dialog id="terminalDialog" class="terminal-dialog" aria-labelledby="terminalDialogTitle">
     <div class="terminal-popup-head">
-      <div><h2 id="terminalDialogTitle">The terminal<span>.</span></h2><p>Let your AI agent navigate this website, or type a command yourself.</p></div>
+      <div><h2 id="terminalDialogTitle">The terminal<span>.</span></h2><p>A concise knowledge console for people and AI agents. Ask for a topic; nothing here navigates away.</p></div>
       <button class="terminal-close" id="terminalClose" type="button" aria-label="Close terminal">×</button>
     </div>
     <div class="terminal-popup-body">
       <div class="terminal-output" id="terminalOutput" role="log" aria-live="polite" aria-label="Terminal output">
-        <div class="term-line">type <b>help</b> to get started.</div>
+        <div class="term-line term-head">ananta knowledge console</div>
+        <div class="term-line">Type <b>help</b> for topics or <b>agent</b> for a structured brief.</div>
       </div>
       <form class="terminal-input-row" id="terminalForm" autocomplete="off">
         <label for="terminalInput" aria-hidden="true">›</label>
@@ -868,7 +871,7 @@
         <button type="submit" aria-label="Run command">↵</button>
       </form>
       <div class="terminal-hints" role="group" aria-label="Quick commands">
-        <button type="button" data-command="help">help</button><button type="button" data-command="pricing">pricing</button><button type="button" data-command="process">process</button><button type="button" data-command="quote">quote</button><button type="button" data-command="clear">clear</button>
+        <button type="button" data-command="summary">summary</button><button type="button" data-command="product">product</button><button type="button" data-command="process">process</button><button type="button" data-command="pricing">pricing</button><button type="button" data-command="security">security</button><button type="button" data-command="agent">agent brief</button><button type="button" data-command="clear">clear</button>
       </div>
     </div>
   </dialog>
@@ -992,29 +995,95 @@
       }
     });
     const commandResponses = {
-      help: ['pricing   jump to the savings breakdown',
-             'process   how the savings quote works',
-             'home      return to the hero',
-             'aws       how AWS integration works',
-             'quote     view an example calculation',
-             'about     what ananta labs does',
-             'login     sign in to ananta',
-             'demo      book a demo',
-             'clear     clear the terminal'],
-      aws: ['One browser-based AWS authorization.',
-            'Check compute usage and costs.',
-            'Benchmark supported CPU workloads against FPGA options.',
-            'Show the estimated savings before any deployment.'],
-      quote: ['Example only — not a live customer quote.',
-              'Current compute         $10,000 / mo',
-              'FPGA alternative         $6,000 / mo',
-              'Gross savings            $4,000 / mo',
-              'ananta fee (30%)         $1,200 / mo',
-              'Customer keeps          $2,800 / mo'],
-      about: ['ananta labs connects to existing AWS infrastructure.',
-              'It configures existing FPGA chips around',
-              'compatible software workloads — not new silicon.']
+      help: {
+        title: 'Available topics',
+        lines: ['summary      the short version',
+                'product      what ananta does',
+                'workloads    example workloads and fit',
+                'aws          connection and data sources',
+                'process      evaluation workflow',
+                'pricing      commercial model',
+                'security     access and data handling',
+                'limitations  important qualification notes',
+                'quote        illustrative savings math',
+                'agent        structured machine-readable brief',
+                'clear        clear this console']
+      },
+      summary: {
+        title: 'Ananta in 30 seconds',
+        lines: ['ananta labs evaluates whether compatible AWS CPU workloads can run more cost-efficiently on existing FPGA infrastructure.',
+                'It uses AWS cost and utilization context plus a representative test to compare the current CPU workload with an FPGA alternative.',
+                'Customers review projected costs before deployment. ananta charges 30% of verified compute savings; the customer keeps 70%. No verified savings means no ananta fee.']
+      },
+      product: {
+        title: 'Product',
+        lines: ['Purpose: reduce AWS compute cost for workloads that benchmark well on FPGA hardware.',
+                'Approach: configure existing FPGA chips around compatible software workloads; ananta is not designing new silicon.',
+                'Output: an evidence-based comparison of current CPU cost, projected FPGA cost, gross savings, fee, and customer net savings.']
+      },
+      workloads: {
+        title: 'Workload fit',
+        lines: ['Illustrative candidates on this site: vector search, log filtering, and risk simulation.',
+                'A named workload is not a compatibility guarantee. Fit depends on the operation, data, performance requirements, and benchmark results.',
+                'A representative dataset, sample requests, or saved benchmark is used to compare the same work on CPU and FPGA.']
+      },
+      aws: {
+        title: 'AWS integration',
+        lines: ['The customer opens AWS, reviews a prefilled read-only IAM role, and approves a CloudFormation stack.',
+                'Documented read scope: Cost Explorer, CloudWatch, and EC2 / ECS resource details.',
+                'ananta uses authorized cost, utilization, and resource metadata to identify a resource and prepare an evaluation. AWS role access can be revoked by the customer.']
+      },
+      process: {
+        title: 'Evaluation process',
+        lines: ['01  Connect AWS with a customer-approved read-only role.',
+                '02  Select an EC2 instance or ECS service and provide a representative test input.',
+                '03  Run a CPU ↔ FPGA benchmark and review projected costs, fee, and retained savings.',
+                'No estimate is shown until an AWS connection and successful benchmark provide evidence.']
+      },
+      pricing: {
+        title: 'Commercial model',
+        lines: ['The customer continues paying AWS directly.',
+                'ananta charges a separate monthly fee equal to 30% of verified compute savings; the customer keeps 70%.',
+                'If verified savings are $0, the ananta fee is $0. Baseline, scope, timing, exclusions, and payment terms are defined in the customer agreement.']
+      },
+      security: {
+        title: 'Access and data handling',
+        lines: ['AWS access is established through permissions reviewed and approved by the customer organization.',
+                'The public workflow describes read-only access to cost, utilization, and resource metadata. Do not submit AWS secret keys through public forms.',
+                'Customers retain ownership of their code, data, AWS accounts, and workloads. Account data is not used to train models for unrelated customers without separate authorization.']
+      },
+      limitations: {
+        title: 'Qualification notes',
+        lines: ['Not every workload is compatible with FPGA acceleration.',
+                'Actual performance and savings depend on workload behavior, customer configuration, AWS pricing, and validation.',
+                'Website figures and workload diagrams are illustrative, not promises, live quotes, or physical synthesis results.']
+      },
+      quote: {
+        title: 'Illustrative monthly example',
+        lines: ['Current AWS compute        $10,000',
+                'Projected FPGA compute      $6,000',
+                'Gross savings               $4,000',
+                'ananta fee · 30%            $1,200',
+                'Customer keeps · 70%        $2,800',
+                'Example only — not a live customer quote.']
+      },
+      agent: {
+        title: 'Agent brief · structured facts',
+        kind: 'term-key',
+        lines: ['company=ananta labs',
+                'category=AWS compute optimization via existing FPGA infrastructure',
+                'goal=reduce compute cost for benchmark-compatible workloads',
+                'inputs=read-only AWS cost/utilization/resource metadata + representative workload test',
+                'aws_scope=Cost Explorer, CloudWatch, EC2, ECS',
+                'workflow=connect AWS > select workload > benchmark CPU vs FPGA > review quote',
+                'pricing=30% of verified compute savings; customer retains 70%',
+                'no_savings_fee=$0',
+                'examples=vector search | log filtering | risk simulation',
+                'caveat=compatibility and savings require workload-specific validation',
+                'secrets=never submit AWS access keys or passwords through public forms']
+      }
     };
+    const commandAliases = {about:'product', overview:'summary', whoami:'summary', cost:'pricing', fees:'pricing', integration:'aws', data:'security', privacy:'security', fit:'workloads', examples:'workloads'};
     const commandHistory = [];
     let historyIndex = 0;
     function appendLine(text, kind='') {
@@ -1024,28 +1093,26 @@
       terminalOutput.appendChild(el);
       terminalOutput.scrollTop=terminalOutput.scrollHeight;
     }
-    function navigateTo(id) {
-      const el = document.getElementById(id);
-      if (el) {
-        terminalDialog.close();
-        el.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
-        history.replaceState(null,'','#'+id);
-      }
+    function appendResponse(response) {
+      appendLine(response.title,'term-head');
+      response.lines.forEach(line=>appendLine(line,response.kind||''));
+      const rule=document.createElement('div');
+      rule.className='term-rule';
+      terminalOutput.appendChild(rule);
+      terminalOutput.scrollTop=terminalOutput.scrollHeight;
     }
     function runCommand(raw) {
-      const cmd=String(raw).trim().toLowerCase();
-      if(!cmd)return;
-      commandHistory.push(cmd);historyIndex=commandHistory.length;
-      if(cmd==='clear'){terminalOutput.replaceChildren();return;}
-      appendLine('› '+cmd,'term-cmd');
-      if(cmd==='home'||cmd==='top'){navigateTo('top');return;}
-      if(cmd==='pricing'){navigateTo('pricing');return;}
-      if(cmd==='how'||cmd==='process'){navigateTo('how');return;}
-      if(cmd==='login'||cmd==='app'){terminalDialog.close();goToApp();return;}
-      if(cmd==='demo'){terminalDialog.close();openDemo();return;}
-      if(commandResponses[cmd])commandResponses[cmd].forEach(line=>appendLine(line));
-      else appendLine('No command named "'+cmd+'". Try help.','term-warning');
-      appendLine('');
+      const entered=String(raw).trim().toLowerCase();
+      if(!entered)return;
+      commandHistory.push(entered);historyIndex=commandHistory.length;
+      if(entered==='clear'){terminalOutput.replaceChildren();return;}
+      appendLine('› '+entered,'term-cmd');
+      const cmd=commandAliases[entered]||entered;
+      if(commandResponses[cmd])appendResponse(commandResponses[cmd]);
+      else {
+        appendLine('No topic named "'+entered+'". Type help to see the knowledge index.','term-warning');
+        appendLine('');
+      }
     }
     document.getElementById('terminalForm').addEventListener('submit', e=>{
       e.preventDefault();runCommand(terminalInput.value);terminalInput.value='';terminalInput.focus();
